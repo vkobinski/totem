@@ -3,6 +3,7 @@ package com.kodev.totem.repositories;
 import com.kodev.totem.models.Atendimento;
 import com.kodev.totem.models.Paciente;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -11,6 +12,11 @@ import java.util.List;
 public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> {
 
     public List<Atendimento> getAtendimentosByMedico_MedicoId(Long medicoId);
+
+    //@Query("SELECT a FROM Atendimento a WHERE DATE(a.dataAtendimento) = CURRENT_DATE")
+    //Query para MySQL
+    @Query(value = "SELECT a FROM Atendimento a WHERE DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
+    List<Atendimento> findAllByDataAtendimentoToday();
 
     List<Atendimento> findByPacienteAndDataAtendimentoBetween(Paciente paciente, Timestamp startOfDay, Timestamp endOfDay);
 }

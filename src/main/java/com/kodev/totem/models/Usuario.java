@@ -25,4 +25,8 @@ public class Usuario {
     @Column
     private Roles role;
 
+    @OneToOne
+    @JoinColumn(name = "usuario_medico_id")
+    private Medico medico;
+
 }

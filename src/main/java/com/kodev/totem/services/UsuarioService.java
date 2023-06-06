@@ -1,5 +1,6 @@
 package com.kodev.totem.services;
 
+import com.kodev.totem.models.Usuario;
 import com.kodev.totem.repositories.UsuarioRepository;
 import org.aspectj.weaver.BoundedReferenceType;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,15 @@ public class UsuarioService {
 
     public void setSocketForUser(Long id, WebSocketSession session) {
         userSockets.put(id, session);
-
         userSockets.entrySet().removeIf(entry -> !entry.getValue().isOpen());
+    }
+
+    public WebSocketSession getSocketForUser(Usuario usuario) {
+        return userSockets.get(usuario.getIdUsuario());
+    }
+
+    public Usuario getUsuarioByMedicoId(Long id) {
+        return usuarioRepository.findUsuarioByMedico_MedicoId(id);
     }
 
 }
