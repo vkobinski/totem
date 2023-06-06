@@ -2,6 +2,7 @@ package com.kodev.totem.controllers;
 
 import com.kodev.totem.models.Medico;
 import com.kodev.totem.services.MedicoService;
+import com.kodev.totem.services.PacienteService;
 import jakarta.persistence.GeneratedValue;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class MedicoController {
         this.medicoService = medicoService;
     }
 
-    @PostMapping
+    @PostMapping("/form")
     public ResponseEntity<Medico> criaMedico(@RequestParam MultipartFile foto, @RequestParam String nomeCompleto) throws IOException {
 
         Medico medico = new Medico();
@@ -41,5 +42,9 @@ public class MedicoController {
         return ResponseEntity.status(HttpStatus.OK).body(medicoService.getMedicos());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Medico> deleteMedico(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(medicoService.deletaMedico(id));
+    }
 
 }

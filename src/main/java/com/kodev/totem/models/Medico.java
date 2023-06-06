@@ -23,4 +23,7 @@ public class Medico {
 
     @Lob
     private byte[] foto;
+
+    @Column
+    private boolean ativo;
 }

@@ -1,20 +1,14 @@
 package com.kodev.totem.controllers;
 
 import com.kodev.totem.models.Paciente;
-import com.kodev.totem.repositories.PacienteRepository;
 import com.kodev.totem.services.PacienteService;
-import org.apache.tomcat.util.http.parser.HttpParser;
-import org.springframework.format.datetime.DateFormatter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
 @RestController
@@ -48,5 +42,10 @@ public class PacienteController {
     @GetMapping
     public ResponseEntity<List<Paciente>> getPacientes() {
         return ResponseEntity.status(HttpStatus.OK).body(pacienteService.getPacientes());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Paciente> deletePaciente(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(pacienteService.deletePaciente(id));
     }
 }

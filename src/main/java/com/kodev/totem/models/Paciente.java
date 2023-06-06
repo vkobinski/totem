@@ -21,4 +21,7 @@ public class Paciente {
 
     @Column
     private Date dataNascimento;
+
+    @Column
+    private boolean ativo = true;
 }
