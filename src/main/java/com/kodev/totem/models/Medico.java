@@ -25,5 +25,5 @@ public class Medico {
     private byte[] foto;
 
     @Column
-    private boolean ativo;
+    private boolean ativo = true;
 }
