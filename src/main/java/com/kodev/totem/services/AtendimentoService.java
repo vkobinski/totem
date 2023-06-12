@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Transient;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -17,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -51,15 +53,33 @@ public class AtendimentoService {
     @Transient
     public String markPatientArrived(Long idPaciente) {
 
-        LocalDate today = LocalDate.now();
-        Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay());
-        Timestamp endOfDay = Timestamp.valueOf(today.atTime(LocalTime.MAX));
 
         Optional<Paciente> byId = pacienteRepository.findById(idPaciente);
 
         if(byId.isEmpty()) throw new EntityNotFoundException();
 
-        List<Atendimento> atendimentos = atendimentoRepository.findByPacienteAndDataAtendimentoBetween(byId.get(), startOfDay, endOfDay);
+        sendMessage(byId.get());
+
+        return "Appointment marked as patient arrived.";
+    }
+
+    public void sendMessage(Usuario usuario) {
+        WebSocketSession socket = usuarioService.getSocketForUser(usuario);
+
+        try{
+            socket.sendMessage(new TextMessage("S"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void sendMessage(Paciente paciente) {
+
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay= today.atStartOfDay();
+        LocalDateTime endOfDay= today.atTime(LocalTime.MAX);
+
+        List<Atendimento> atendimentos = atendimentoRepository.findByPacienteAndDataAtendimentoBetween(paciente, startOfDay, endOfDay);
 
         for (Atendimento aT : atendimentos) {
             aT.setChegou(true);
@@ -73,8 +93,6 @@ public class AtendimentoService {
                 log.error(e.getMessage());
             }
         }
-
-        return "Appointment marked as patient arrived.";
     }
 
     public List<Atendimento> getAtendimentos() {

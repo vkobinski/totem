@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/medico")
@@ -31,6 +32,7 @@ public class MedicoController {
         Medico medico = new Medico();
         medico.setFoto(foto.getBytes());
         medico.setNomeCompleto(nomeCompleto);
+        medico.setAtivo(true);
 
         medico = medicoService.criaMedico(medico);
 
@@ -40,6 +42,12 @@ public class MedicoController {
     @GetMapping
     public ResponseEntity<List<Medico>> getMedicos() {
         return ResponseEntity.status(HttpStatus.OK).body(medicoService.getMedicos());
+    }
+
+    @PostMapping("/procura")
+    public ResponseEntity<Medico> getMedicoByNome(@RequestParam String nome) {
+        Optional<Medico> medico = medicoService.getMedicoByNomeCompleto(nome);
+        return medico.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

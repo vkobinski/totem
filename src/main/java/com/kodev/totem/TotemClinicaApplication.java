@@ -69,14 +69,12 @@ public class TotemClinicaApplication {
 			atendimento.setPaciente(save1);
 
 			LocalDateTime currentDate = LocalDateTime.now();
-			Timestamp timestamp = Timestamp.valueOf(currentDate);
 
-			atendimento.setDataAtendimento(timestamp);
+			atendimento.setDataAtendimento(currentDate);
 
 			atendimento.setChegou(false);
 
 			atendimentoRepository.save(atendimento);
-
 
 		};
 	}

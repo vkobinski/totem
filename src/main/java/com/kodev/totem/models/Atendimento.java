@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Table
 @Entity
@@ -26,7 +27,7 @@ public class Atendimento {
     private Medico medico;
 
     @Column
-    private Timestamp dataAtendimento;
+    private LocalDateTime dataAtendimento;
 
     @Column
     private boolean chegou = false;

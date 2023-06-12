@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> {
@@ -18,5 +20,5 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     @Query(value = "SELECT a FROM Atendimento a WHERE DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
     List<Atendimento> findAllByDataAtendimentoToday();
 
-    List<Atendimento> findByPacienteAndDataAtendimentoBetween(Paciente paciente, Timestamp startOfDay, Timestamp endOfDay);
+    List<Atendimento> findByPacienteAndDataAtendimentoBetween(Paciente paciente, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

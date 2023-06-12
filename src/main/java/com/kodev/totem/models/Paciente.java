@@ -18,7 +18,6 @@ public class Paciente {
 
     @Column
     private String nomeCompleto;
-
     @Column
     private Date dataNascimento;
 

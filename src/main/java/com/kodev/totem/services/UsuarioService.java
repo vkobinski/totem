@@ -1,7 +1,9 @@
 package com.kodev.totem.services;
 
+import com.kodev.totem.enums.Roles;
 import com.kodev.totem.models.Usuario;
 import com.kodev.totem.repositories.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.aspectj.weaver.BoundedReferenceType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -29,6 +31,14 @@ public class UsuarioService {
         userSockets.entrySet().removeIf(entry -> !entry.getValue().isOpen());
     }
 
+    public Usuario criaUsuario(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
+    public Usuario findUsuarioByEmail(String email) {
+        return usuarioRepository.findUsuarioByEmail(email).orElseThrow(EntityNotFoundException::new);
+    }
+
     public WebSocketSession getSocketForUser(Usuario usuario) {
         return userSockets.get(usuario.getIdUsuario());
     }
@@ -37,4 +47,11 @@ public class UsuarioService {
         return usuarioRepository.findUsuarioByMedico_MedicoId(id);
     }
 
+    public Roles getRole(String role) {
+        if (role.equals("MEDICO")) {
+            return Roles.MEDICO;
+        } else {
+            return Roles.SECRETARIA;
+        }
+    }
 }
