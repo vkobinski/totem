@@ -48,4 +48,9 @@ public class PacienteController {
     public ResponseEntity<Paciente> deletePaciente(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(pacienteService.deletePaciente(id));
     }
+
+    @PostMapping("/busca")
+    public ResponseEntity<List<Paciente>> getPacientesByNomeContaining(@RequestParam String nome) {
+        return ResponseEntity.ok(pacienteService.getPacientesByNomeCompletoContaining(nome));
+    }
 }

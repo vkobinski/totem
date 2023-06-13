@@ -32,4 +32,8 @@ public class PacienteService {
             return paciente;
         }).orElseThrow(EntityNotFoundException::new);
     }
+
+    public List<Paciente> getPacientesByNomeCompletoContaining(String nome) {
+        return pacienteRepository.getPacienteByNomeCompletoContainingIgnoreCase(nome);
+    }
 }
