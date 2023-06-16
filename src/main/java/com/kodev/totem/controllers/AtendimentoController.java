@@ -8,24 +8,16 @@ import com.kodev.totem.repositories.MedicoRepository;
 import com.kodev.totem.repositories.PacienteRepository;
 import com.kodev.totem.repositories.UsuarioRepository;
 import com.kodev.totem.services.AtendimentoService;
-import lombok.Getter;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/v1/atendimento")

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/usuario")
@@ -37,15 +38,35 @@ public class UsuarioController {
 
 
     @PostMapping("/form")
-    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam String role, @RequestParam(required = false) Long idMedico) {
+    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha) {
+        Usuario usuario = new Usuario();
+        usuario.setEmail(email);
+        usuario.setPassword(senha);
+        usuario.setRole(Roles.SECRETARIA);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criaUsuario(usuario));
+
+    }
+
+    @PostMapping("/form-medico")
+    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam String role, @RequestParam(required = false) Long idMedico, @RequestParam MultipartFile foto, @RequestParam String nomeCompleto) {
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
         usuario.setPassword(senha);
         usuario.setRole(usuarioService.getRole(role));
 
-        Medico medico = medicoService.getMedicoById(idMedico);
+        Medico medico = new Medico();
+        medico.setNomeCompleto(nomeCompleto);
 
-        if(usuario.getRole() == Roles.MEDICO) usuario.setMedico(medico);
+        try {
+            medico.setFoto(foto.getBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        medico = medicoService.criaMedico(medico);
+
+        usuario.setMedico(medico);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criaUsuario(usuario));
 
