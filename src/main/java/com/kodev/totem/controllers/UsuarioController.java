@@ -49,11 +49,11 @@ public class UsuarioController {
     }
 
     @PostMapping("/form-medico")
-    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam String role, @RequestParam(required = false) Long idMedico, @RequestParam MultipartFile foto, @RequestParam String nomeCompleto) {
+    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam MultipartFile foto, @RequestParam String nomeCompleto) {
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
         usuario.setPassword(senha);
-        usuario.setRole(usuarioService.getRole(role));
+        usuario.setRole(Roles.MEDICO);
 
         Medico medico = new Medico();
         medico.setNomeCompleto(nomeCompleto);
