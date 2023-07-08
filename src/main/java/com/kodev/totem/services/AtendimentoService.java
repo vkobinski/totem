@@ -58,6 +58,10 @@ public class AtendimentoService {
         return atendimentoRepository.getAtendimentosByMedico_MedicoId_Today(id);
     }
 
+    public void desmarcaAtendimento(Long idAtendimento) {
+        atendimentoRepository.deleteById(idAtendimento);
+    }
+
     @Transient
     public String markPatientArrived(Long idPaciente, MultipartFile fotoPaciente) {
 

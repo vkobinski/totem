@@ -130,4 +130,10 @@ public class AtendimentoController {
 
         return ResponseEntity.ok(todayAtendimentos);
     }
+
+    @PutMapping("/desmarcar")
+    public ResponseEntity<Object> desmarcaAtendimento(@RequestParam Long idAtendimento) {
+        atendimentoService.desmarcaAtendimento(idAtendimento);
+        return ResponseEntity.ok().build();
+    }
 }
