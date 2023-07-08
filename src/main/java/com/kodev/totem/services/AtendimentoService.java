@@ -8,15 +8,19 @@ import com.kodev.totem.repositories.MedicoRepository;
 import com.kodev.totem.repositories.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Transient;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -50,15 +54,19 @@ public class AtendimentoService {
         return atendimentoRepository.getAtendimentosByMedico_MedicoId(id);
     }
 
+    public List<Atendimento> getAtendimentosByMedicoIdToday(Long id) {
+        return atendimentoRepository.getAtendimentosByMedico_MedicoId_Today(id);
+    }
+
     @Transient
-    public String markPatientArrived(Long idPaciente) {
+    public String markPatientArrived(Long idPaciente, MultipartFile fotoPaciente) {
 
 
         Optional<Paciente> byId = pacienteRepository.findById(idPaciente);
 
         if(byId.isEmpty()) throw new EntityNotFoundException();
 
-        sendMessage(byId.get());
+        sendMessage(byId.get(), fotoPaciente);
 
         return "Appointment marked as patient arrived.";
     }
@@ -73,7 +81,7 @@ public class AtendimentoService {
         }
     }
 
-    public void sendMessage(Paciente paciente) {
+    public void sendMessage(Paciente paciente, MultipartFile fotoPaciente) {
 
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay= today.atStartOfDay();
@@ -83,6 +91,13 @@ public class AtendimentoService {
 
         for (Atendimento aT : atendimentos) {
             aT.setChegou(true);
+
+            try {
+                aT.setFotoPaciente(fotoPaciente.getBytes());
+            } catch (Exception e ) {
+                System.out.println(e.getMessage());
+            }
+
             atendimentoRepository.save(aT);
 
             Usuario userMedico = usuarioService.getUsuarioByMedicoId(aT.getMedico().getMedicoId());
@@ -90,7 +105,7 @@ public class AtendimentoService {
             try {
                 socketForUser.sendMessage(new TextMessage("S"));
             } catch (IOException e) {
-                log.error(e.getMessage());
+
             }
         }
     }

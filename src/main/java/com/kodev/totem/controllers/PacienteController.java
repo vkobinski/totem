@@ -53,4 +53,9 @@ public class PacienteController {
     public ResponseEntity<List<Paciente>> getPacientesByNomeContaining(@RequestParam String nome) {
         return ResponseEntity.ok(pacienteService.getPacientesByNomeCompletoContaining(nome));
     }
+
+    @PostMapping("/buscaPrimeira")
+    public ResponseEntity<List<Paciente>> getPacientesByPrimeiraLetra(@RequestParam String letra) {
+        return ResponseEntity.ok(pacienteService.getPacientesByPrimeiraLetra(letra));
+    }
 }

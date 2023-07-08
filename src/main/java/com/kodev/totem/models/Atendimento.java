@@ -29,6 +29,9 @@ public class Atendimento {
     @Column
     private LocalDateTime dataAtendimento;
 
+    @Lob
+    private byte[] fotoPaciente;
+
     @Column
     private boolean chegou = false;
 }

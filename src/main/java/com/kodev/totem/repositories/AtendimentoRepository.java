@@ -6,12 +6,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> {
+
+    @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
+    public List<Atendimento> getAtendimentosByMedico_MedicoId_Today(Long medicoId);
 
     public List<Atendimento> getAtendimentosByMedico_MedicoId(Long medicoId);
 

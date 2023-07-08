@@ -11,4 +11,7 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     public Optional<Paciente> findPacienteByNomeCompletoIgnoreCase(String nome);
 
     public List<Paciente> getPacienteByNomeCompletoContainingIgnoreCase(String nome);
+
+    public List<Paciente> getPacienteByNomeCompletoStartingWithIgnoreCase(String firstLetter);
 }
+
