@@ -29,6 +29,7 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<Usuario> loginUsuario(@RequestParam String email, @RequestParam String senha) {
+        System.out.println(email + senha);
         Usuario usuario = usuarioService.findUsuarioByEmail(email);
 
         if(usuario.getPassword().equals(senha)) return ResponseEntity.ok(usuario);

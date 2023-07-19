@@ -65,7 +65,6 @@ public class AtendimentoService {
     @Transient
     public String markPatientArrived(Long idPaciente, MultipartFile fotoPaciente) {
 
-
         Optional<Paciente> byId = pacienteRepository.findById(idPaciente);
 
         if(byId.isEmpty()) throw new EntityNotFoundException();
@@ -105,11 +104,11 @@ public class AtendimentoService {
             atendimentoRepository.save(aT);
 
             Usuario userMedico = usuarioService.getUsuarioByMedicoId(aT.getMedico().getMedicoId());
-            WebSocketSession socketForUser = usuarioService.getSocketForUser(userMedico);
             try {
+                WebSocketSession socketForUser = usuarioService.getSocketForUser(userMedico);
                 socketForUser.sendMessage(new TextMessage("S"));
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
         }
     }
@@ -120,5 +119,9 @@ public class AtendimentoService {
 
     public List<Atendimento> getTodayAtendimentos() {
         return atendimentoRepository.findAllByDataAtendimentoToday();
+    }
+
+    public List<Atendimento> getAllAtendimentosPacienteStartsWith(String letter) {
+        return atendimentoRepository.findAllByPaciente_NomeCompletoStartingWithAndDataAtendimentoToday(letter);
     }
 }

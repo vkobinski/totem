@@ -3,10 +3,13 @@ package com.kodev.totem.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.MapKeyCompositeType;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.descriptor.jdbc.VarbinaryJdbcType;
 
 import javax.imageio.ImageTypeSpecifier;
+import java.sql.Types;
 
 @Table
 @Entity
@@ -22,6 +25,8 @@ public class Medico {
     private String nomeCompleto;
 
     @Lob
+    @JdbcType(VarbinaryJdbcType.class)
+    @Column(name = "foto")
     private byte[] foto;
 
     @Column

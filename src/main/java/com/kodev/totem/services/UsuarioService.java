@@ -31,6 +31,7 @@ public class UsuarioService {
     }
 
     public Usuario findUsuarioByEmail(String email) {
+        System.out.println(email);
         return usuarioRepository.findUsuarioByEmail(email).orElseThrow(EntityNotFoundException::new);
     }
 

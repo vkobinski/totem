@@ -52,6 +52,11 @@ public class AtendimentoController {
         return ResponseEntity.ok(atendimentoService.markPatientArrived(id, fotoPaciente));
     }
 
+    @GetMapping("/paciente/{letra}")
+    public ResponseEntity<List<Atendimento>> getPacientesWithLetterToday(@PathVariable String letra) {
+        return ResponseEntity.ok(atendimentoService.getAllAtendimentosPacienteStartsWith(letra));
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<List<Atendimento>> getAtendimentosForMedico(@PathVariable Long userId) {
         Usuario usuario = usuarioRepository.findUsuarioByMedico_MedicoId(userId);
