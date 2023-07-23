@@ -36,7 +36,7 @@ public class MedicoService {
 
     public Medico deletaMedico(Long id) {
         return medicoRepository.findById(id).map((medico) -> {
-            medico.setAtivo(false);
+            medico.setAtivo(!medico.isAtivo());
             medicoRepository.save(medico);
             return medico;
         }).orElseThrow(EntityNotFoundException::new);

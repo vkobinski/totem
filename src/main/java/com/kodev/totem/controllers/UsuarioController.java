@@ -29,10 +29,8 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<Usuario> loginUsuario(@RequestParam String email, @RequestParam String senha) {
-        System.out.println(email + senha);
         Usuario usuario = usuarioService.findUsuarioByEmail(email);
-
-        if(usuario.getPassword().equals(senha)) return ResponseEntity.ok(usuario);
+        if(usuario.getPassword().equals(senha) && usuario.getMedico().isAtivo()) return ResponseEntity.ok(usuario);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

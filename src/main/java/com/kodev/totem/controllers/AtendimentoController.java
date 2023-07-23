@@ -20,6 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.JobKOctets;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -62,6 +64,17 @@ public class AtendimentoController {
         Usuario usuario = usuarioRepository.findUsuarioByMedico_MedicoId(userId);
 
         List<Atendimento> atendimentos = atendimentoService.getAtendimentosByMedicoIdToday(usuario.getMedico().getMedicoId());
+
+        List<Atendimento> sortedAtendimentos = atendimentos.stream()
+                .sorted(Comparator.comparing(Atendimento::getDataAtendimento))
+                .toList();
+
+        return ResponseEntity.ok(sortedAtendimentos);
+    }
+
+    @PostMapping("/medico/today-and-forth")
+    public ResponseEntity<List<Atendimento>> getAtendimentosForMedicoTodayAndForth(@RequestParam String nomeMedico) {
+        List<Atendimento> atendimentos = atendimentoService.getAtendimentosByMedicoIdToday(nomeMedico);
 
         List<Atendimento> sortedAtendimentos = atendimentos.stream()
                 .sorted(Comparator.comparing(Atendimento::getDataAtendimento))
@@ -128,6 +141,11 @@ public class AtendimentoController {
         return ResponseEntity.ok(atendimentoService.getAtendimentos());
     }
 
+    @GetMapping("/today-and-forth")
+    public ResponseEntity<List<Atendimento>> getAtendimentosTodayAndForth() {
+        return ResponseEntity.ok(atendimentoService.getAtendimentosAndForth());
+    }
+
     @GetMapping("/today")
     public ResponseEntity<List<Atendimento>> getAtendimentosToday() {
 
@@ -139,6 +157,12 @@ public class AtendimentoController {
     @PutMapping("/desmarcar")
     public ResponseEntity<Object> desmarcaAtendimento(@RequestParam Long idAtendimento) {
         atendimentoService.desmarcaAtendimento(idAtendimento);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/desmarcar-buscando")
+    public ResponseEntity<Object> desmarcaAtendimento(@RequestParam String nomePaciente, @RequestParam String dataNascimento, @RequestParam String dataAtendimento) throws ParseException {
+        atendimentoService.desmarcaAtendimentoBuscando(nomePaciente, dataNascimento, dataAtendimento);
         return ResponseEntity.ok().build();
     }
 }

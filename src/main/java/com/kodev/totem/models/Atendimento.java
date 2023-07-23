@@ -6,7 +6,6 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.type.descriptor.jdbc.VarbinaryJdbcType;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Table

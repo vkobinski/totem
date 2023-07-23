@@ -37,6 +37,10 @@ public class PacienteService {
         return pacienteRepository.getPacienteByNomeCompletoContainingIgnoreCase(nome);
     }
 
+    public Paciente getPacientesByNomeCompleto(String nome) {
+        return pacienteRepository.getPacienteByNomeCompleto(nome);
+    }
+
     public List<Paciente> getPacientesByPrimeiraLetra(String letra) {
         return pacienteRepository.getPacienteByNomeCompletoStartingWithIgnoreCase(letra);
     }

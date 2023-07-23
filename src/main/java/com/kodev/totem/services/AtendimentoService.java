@@ -1,6 +1,7 @@
 package com.kodev.totem.services;
 
 import com.kodev.totem.models.Atendimento;
+import com.kodev.totem.models.Medico;
 import com.kodev.totem.models.Paciente;
 import com.kodev.totem.models.Usuario;
 import com.kodev.totem.repositories.AtendimentoRepository;
@@ -20,6 +21,8 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,8 +61,28 @@ public class AtendimentoService {
         return atendimentoRepository.getAtendimentosByMedico_MedicoId_Today(id);
     }
 
+    public List<Atendimento> getAtendimentosByMedicoIdToday(String nomeMedico) {
+        Optional<Medico> medico = medicoRepository.findMedicoByNomeCompletoIgnoreCase(nomeMedico);
+        if(medico.isPresent()) {
+            return atendimentoRepository.getAtendimentosByMedico_MedicoId(medico.get().getMedicoId());
+        }
+        throw new EntityNotFoundException();
+    }
+
+
     public void desmarcaAtendimento(Long idAtendimento) {
         atendimentoRepository.deleteById(idAtendimento);
+    }
+
+    public void desmarcaAtendimentoBuscando(String nomePaciente, String dataNascimento, String dataAtendimento) throws ParseException {
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.sql.Date parse = new java.sql.Date(dateTimeFormatter.parse(dataNascimento).getTime());
+
+        Paciente paciente = pacienteRepository.getPacienteByNomeCompletoContainingIgnoreCaseAndDataNascimento(nomePaciente, parse);
+
+        parse = new java.sql.Date(dateTimeFormatter.parse(dataAtendimento).getTime());
+        Atendimento atendimento = atendimentoRepository.findByPacienteAndDataAtendimento(paciente, parse);
+        atendimentoRepository.deleteById(atendimento.getAtendimentoId());
     }
 
     @Transient
@@ -123,5 +146,9 @@ public class AtendimentoService {
 
     public List<Atendimento> getAllAtendimentosPacienteStartsWith(String letter) {
         return atendimentoRepository.findAllByPaciente_NomeCompletoStartingWithAndDataAtendimentoToday(letter);
+    }
+
+    public List<Atendimento> getAtendimentosAndForth() {
+        return atendimentoRepository.findAllAtendimentosFromTodayAndOnwards();
     }
 }
