@@ -5,14 +5,17 @@ import com.kodev.totem.models.Medico;
 import com.kodev.totem.models.Usuario;
 import com.kodev.totem.services.MedicoService;
 import com.kodev.totem.services.UsuarioService;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/usuario")
@@ -36,6 +39,13 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    @GetMapping("/list-user")
+    public ResponseEntity<List<Usuario>> getUsersMedicos() {
+
+
+        List<Usuario> medicUsers = usuarioService.getMedicUsers();
+        return ResponseEntity.ok(medicUsers);
+    }
 
     @PostMapping("/form")
     public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha) {
@@ -71,4 +81,6 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criaUsuario(usuario));
 
     }
+
+
 }

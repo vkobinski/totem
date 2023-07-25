@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.JobKOctets;
+import java.sql.Date;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -95,6 +97,7 @@ public class AtendimentoController {
         Optional<Usuario> userOp = usuarioRepository.findById(userId);
         Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCase(nomePaciente);
 
+
         if(userOp.isEmpty()) return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Médico não encontrado")).build();
         if(paciente.isEmpty()) return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Paciente não encontrado")).build();
 
@@ -110,8 +113,12 @@ public class AtendimentoController {
     }
 
     @PostMapping
-    public ResponseEntity<Atendimento> criaAtendimento(@RequestParam String nomeMedico, @RequestParam String nomePaciente, @RequestParam String dataHora){
-        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCase(nomePaciente);
+    public ResponseEntity<Atendimento> criaAtendimento(@RequestParam String nomeMedico, @RequestParam String nomePaciente,@RequestParam String dataNascimento, @RequestParam String dataHora) throws ParseException {
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
+        java.sql.Date dataSql = new Date(parse.getTime());
+
+        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCaseAndDataNascimento(nomePaciente, dataSql);
         Optional<Medico> medico = medicoRepository.findMedicoByNomeCompletoIgnoreCase(nomeMedico);
 
         LocalDateTime timestamp = formataHora(dataHora);

@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -51,5 +52,9 @@ public class UsuarioService {
         } else {
             throw new jakarta.persistence.NoResultException("Não existe Role com nome: " + role);
         }
+    }
+
+    public List<Usuario> getMedicUsers() {
+        return usuarioRepository.findAll().stream().filter((u) -> getRole(u.getRole().name()) == Roles.MEDICO).toList();
     }
 }

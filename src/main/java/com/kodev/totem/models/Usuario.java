@@ -16,10 +16,10 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idUsuario;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Column

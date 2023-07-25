@@ -16,12 +16,12 @@ public class Medico {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long medicoId;
 
-    @Column
+    @Column(nullable = false)
     private String nomeCompleto;
 
     @Lob
     @JdbcType(VarbinaryJdbcType.class)
-    @Column(name = "foto")
+    @Column(name = "foto", nullable = false)
     private byte[] foto;
 
     @Column

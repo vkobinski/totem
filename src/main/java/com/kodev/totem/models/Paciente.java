@@ -16,9 +16,9 @@ public class Paciente {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long pacienteId;
 
-    @Column
+    @Column(nullable = false)
     private String nomeCompleto;
-    @Column
+    @Column(nullable = false)
     private Date dataNascimento;
 
     @Column
