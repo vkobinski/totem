@@ -1,5 +1,8 @@
 package com.kodev.totem;
 
+import com.kodev.totem.enums.Roles;
+import com.kodev.totem.models.Medico;
+import com.kodev.totem.models.Usuario;
 import com.kodev.totem.repositories.AtendimentoRepository;
 import com.kodev.totem.repositories.MedicoRepository;
 import com.kodev.totem.repositories.PacienteRepository;

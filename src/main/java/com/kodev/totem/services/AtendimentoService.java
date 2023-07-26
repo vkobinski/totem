@@ -61,6 +61,10 @@ public class AtendimentoService {
         return atendimentoRepository.getAtendimentosByMedico_MedicoId_Today(id);
     }
 
+    public List<Atendimento> getAtendimentosByMedicoIdByDay(Long id, LocalDateTime date)  {
+       return  atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(id, date);
+    }
+
     public List<Atendimento> getAtendimentosByMedicoIdToday(String nomeMedico) {
         Optional<Medico> medico = medicoRepository.findMedicoByNomeCompletoIgnoreCase(nomeMedico);
         if(medico.isPresent()) {
@@ -134,6 +138,10 @@ public class AtendimentoService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public List<Atendimento> getAtendimentosByDay(java.sql.Date date) {
+        return atendimentoRepository.findByDataAtendimento(date);
     }
 
     public List<Atendimento> getAtendimentos() {

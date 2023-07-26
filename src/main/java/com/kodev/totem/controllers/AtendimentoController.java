@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.antlr.v4.runtime.atn.ATN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.Problem;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -74,6 +75,24 @@ public class AtendimentoController {
         return ResponseEntity.ok(sortedAtendimentos);
     }
 
+    @PostMapping("/search-by-day")
+    public ResponseEntity<List<Atendimento>> getAtendimentosForMedicoByDay(@RequestParam Long userId, @RequestParam String day) throws ParseException {
+
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date parse = dateTimeFormatter.parse(day + "/2023");
+        java.sql.Date dataSql = new Date(parse.getTime());
+        LocalDateTime localDateTime = dataSql.toLocalDate().atStartOfDay();
+        Usuario usuario = usuarioRepository.findUsuarioByMedico_MedicoId(userId);
+
+        List<Atendimento> atendimentos = atendimentoService.getAtendimentosByMedicoIdByDay(usuario.getMedico().getMedicoId(), localDateTime);
+
+        List<Atendimento> sortedAtendimentos = atendimentos.stream()
+                .sorted(Comparator.comparing(Atendimento::getDataAtendimento))
+                .toList();
+
+        return ResponseEntity.ok(sortedAtendimentos);
+    }
+
     @PostMapping("/medico/today-and-forth")
     public ResponseEntity<List<Atendimento>> getAtendimentosForMedicoTodayAndForth(@RequestParam String nomeMedico) {
         List<Atendimento> atendimentos = atendimentoService.getAtendimentosByMedicoIdToday(nomeMedico);
@@ -93,13 +112,14 @@ public class AtendimentoController {
     }
 
     @PostMapping("/app/form")
-    public ResponseEntity<Atendimento> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataHora) {
+    public ResponseEntity<Atendimento> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataNascimento, @RequestParam String dataHora) throws ParseException {
+
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
+        java.sql.Date dataSql = new Date(parse.getTime());
+
         Optional<Usuario> userOp = usuarioRepository.findById(userId);
-        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCase(nomePaciente);
-
-
-        if(userOp.isEmpty()) return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Médico não encontrado")).build();
-        if(paciente.isEmpty()) return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Paciente não encontrado")).build();
+        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCaseAndDataNascimento(nomePaciente, dataSql);
 
         Atendimento atendimento = new Atendimento();
         atendimento.setMedico(userOp.get().getMedico());
@@ -146,6 +166,15 @@ public class AtendimentoController {
     @GetMapping
     public ResponseEntity<List<Atendimento>> getAtendimentos() {
         return ResponseEntity.ok(atendimentoService.getAtendimentos());
+    }
+
+    @GetMapping("/by-day?day={day}")
+    public ResponseEntity<List<Atendimento>> getAtendimentosByDay(@PathVariable String day) throws ParseException {
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date parse = dateTimeFormatter.parse(day + "/2023");
+        java.sql.Date dataSql = new Date(parse.getTime());
+
+        return ResponseEntity.ok(atendimentoService.getAtendimentosByDay(dataSql));
     }
 
     @GetMapping("/today-and-forth")

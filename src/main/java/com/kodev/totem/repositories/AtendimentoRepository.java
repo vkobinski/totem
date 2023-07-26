@@ -16,6 +16,9 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
     public List<Atendimento> getAtendimentosByMedico_MedicoId_Today(Long medicoId);
 
+    @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND FUNCTION('DATE', a.dataAtendimento) = FUNCTION('DATE', :selectedDateTime)")
+    public List<Atendimento> getAtendimentosByMedico_MedicoId_OnDate(Long medicoId, LocalDateTime selectedDateTime);
+
     @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND a.dataAtendimento >= CURRENT_DATE ORDER BY a.dataAtendimento ASC")
     public List<Atendimento> getAtendimentosByMedico_MedicoId(Long medicoId);
 
