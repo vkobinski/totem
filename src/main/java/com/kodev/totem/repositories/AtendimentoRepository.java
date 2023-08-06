@@ -31,6 +31,9 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     List<Atendimento> findByPacienteAndDataAtendimentoBetween(Paciente paciente, LocalDateTime startOfDay, LocalDateTime endOfDay);
     List<Atendimento> findAllByPaciente_NomeCompletoStartingWith(String letter);
 
+    List<Atendimento> findByPacienteNomeCompletoIgnoreCase(String nome);
+    List<Atendimento> findByMedicoNomeCompletoIgnoreCase(String nome);
+
     @Query("SELECT a FROM Atendimento a WHERE a.paciente = :paciente AND DATE(a.dataAtendimento) = :date")
     Atendimento findByPacienteAndDataAtendimento(@Param("paciente") Paciente paciente, @Param("date") Date date);
 

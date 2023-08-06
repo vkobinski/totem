@@ -104,6 +104,11 @@ public class AtendimentoController {
         return ResponseEntity.ok(sortedAtendimentos);
     }
 
+    @PostMapping("/search")
+    public ResponseEntity<List<Atendimento>> getAtendimentosForPacienteAndMedico(@RequestParam String nome) {
+        return ResponseEntity.ok(atendimentoService.searchByNomeCompleto(nome));
+    }
+
     public LocalDateTime formataHora(String dataHora) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         LocalDateTime timestamp = null;
