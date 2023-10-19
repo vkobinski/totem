@@ -40,6 +40,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     @Query("SELECT a FROM Atendimento a WHERE DATE(a.dataAtendimento) = :date")
     List<Atendimento> findByDataAtendimento(@Param("date") java.sql.Date date);
 
-    @Query(value = "SELECT a FROM Atendimento a WHERE LOWER(a.paciente.nomeCompleto) LIKE CONCAT(LOWER(:letter), '%') AND DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
-    List<Atendimento> findAllByPaciente_NomeCompletoStartingWithAndDataAtendimentoToday(@Param("letter") String letter);
+    @Query(value = "SELECT * FROM Atendimento a WHERE LOWER(a.paciente_nome_completo) LIKE CONCAT(LOWER(?1), '%') AND DATE_TRUNC('DAY', a.data_atendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')", nativeQuery = true)
+    List<Atendimento> findAllByPaciente_NomeCompletoStartingWithAndDataAtendimentoToday(String letter);
+
 }

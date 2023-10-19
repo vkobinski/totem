@@ -34,7 +34,7 @@ public class UsuarioController {
     public ResponseEntity<Usuario> loginUsuario(@RequestParam String email, @RequestParam String senha) {
         System.out.println(email + senha);
         Usuario usuario = usuarioService.findUsuarioByEmail(email);
-        if(usuario.getPassword().equals(senha) && usuario.getMedico().isAtivo()) return ResponseEntity.ok(usuario);
+        if (usuario.getPassword().equals(senha) && usuario.getMedico().isAtivo()) return ResponseEntity.ok(usuario);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
@@ -57,6 +57,18 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criaUsuario(usuario));
 
     }
+
+    @PutMapping("/medico/{id}")
+    public ResponseEntity<Usuario> updateMedico(@PathVariable Long id,
+                                               @RequestParam(required = false)MultipartFile foto,
+                                               @RequestParam(required = false) String email,
+                                               @RequestParam(required = false) String senha,
+                                               @RequestParam(required = false) String nomeCompleto) {
+
+        Usuario usuario = usuarioService.editUser(id, foto, email, senha, nomeCompleto);
+        return ResponseEntity.ok(usuario);
+    }
+
 
     @PostMapping("/form-medico")
     public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam MultipartFile foto, @RequestParam String nomeCompleto) {

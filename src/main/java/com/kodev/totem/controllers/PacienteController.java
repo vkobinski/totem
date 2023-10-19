@@ -23,6 +23,9 @@ public class PacienteController {
 
     @PostMapping("/form")
     public ResponseEntity<Paciente> criaPacienteForm(@RequestParam String nomeCompleto, @RequestParam String dataNascimento) throws ParseException {
+
+        if(nomeCompleto.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
         Paciente pacienteCriado = new Paciente();
         pacienteCriado.setNomeCompleto(nomeCompleto);
 

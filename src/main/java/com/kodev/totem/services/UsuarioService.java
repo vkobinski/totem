@@ -5,8 +5,10 @@ import com.kodev.totem.models.Usuario;
 import com.kodev.totem.repositories.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,5 +58,24 @@ public class UsuarioService {
 
     public List<Usuario> getMedicUsers() {
         return usuarioRepository.findAll().stream().filter((u) -> getRole(u.getRole().name()) == Roles.MEDICO).toList();
+    }
+
+    public Usuario editUser(Long id, MultipartFile foto, String email, String senha, String nomeCompleto) {
+
+        Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(id);
+
+        if(email != null) user.setEmail(email);
+        if(senha != null) user.setPassword(senha);
+        if(nomeCompleto != null) user.getMedico().setNomeCompleto(nomeCompleto);
+
+        if(foto != null) {
+            try {
+                user.getMedico().setFoto(foto.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return usuarioRepository.save(user);
     }
 }
