@@ -23,10 +23,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,10 +65,6 @@ public class AtendimentoService {
 
     public List<Atendimento> getAtendimentosByMedicoIdToday(Long id) {
         return atendimentoRepository.getAtendimentosByMedico_MedicoId_Today(id);
-    }
-
-    public List<Atendimento> getAtendimentosByMedicoIdByDay(Long id, LocalDateTime date)  {
-       return  atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(id, date);
     }
 
     public List<Atendimento> getAtendimentosByMedicoIdToday(String nomeMedico) {
@@ -122,9 +115,9 @@ public class AtendimentoService {
 
     public void sendMessage(Paciente paciente, MultipartFile fotoPaciente) {
 
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay= today.atStartOfDay();
-        LocalDateTime endOfDay= today.atTime(LocalTime.MAX);
+        LocalDateTime today = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        LocalDateTime startOfDay= today.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay= today.toLocalDate().atTime(LocalTime.MAX);
 
         List<Atendimento> atendimentos = atendimentoRepository.findByPacienteAndDataAtendimentoBetween(paciente, startOfDay, endOfDay);
 
@@ -149,8 +142,9 @@ public class AtendimentoService {
         }
     }
 
-    public List<Atendimento> getAtendimentosByDay(java.sql.Date date) {
-        return atendimentoRepository.findByDataAtendimento(date);
+
+    public List<Atendimento> getAtendimentosByMedicoIdByDay(Long id, LocalDateTime date)  {
+        return  atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(id, date);
     }
 
     public List<Atendimento> getAtendimentos() {

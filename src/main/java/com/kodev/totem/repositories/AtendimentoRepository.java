@@ -19,14 +19,14 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND FUNCTION('DATE', a.dataAtendimento) = FUNCTION('DATE', :selectedDateTime)")
     public List<Atendimento> getAtendimentosByMedico_MedicoId_OnDate(Long medicoId, LocalDateTime selectedDateTime);
 
-    @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND a.dataAtendimento >= CURRENT_DATE ORDER BY a.dataAtendimento ASC")
+    @Query(value = "SELECT a FROM Atendimento a WHERE a.medico.medicoId = :medicoId AND DATE_TRUNC('DAY', a.dataAtendimento) >= DATE_TRUNC('DAY', CURRENT_TIMESTAMP) ORDER BY a.dataAtendimento ASC")
     public List<Atendimento> getAtendimentosByMedico_MedicoId(Long medicoId);
 
     //@Query("SELECT a FROM Atendimento a WHERE DATE(a.dataAtendimento) = CURRENT_DATE")
     //Query para MySQL
     @Query(value = "SELECT a FROM Atendimento a WHERE DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
     List<Atendimento> findAllByDataAtendimentoToday();
-    @Query("SELECT a FROM Atendimento a WHERE a.dataAtendimento >= CURRENT_DATE ORDER BY a.dataAtendimento ASC")
+    @Query("SELECT a FROM Atendimento a WHERE DATE_TRUNC('DAY', a.dataAtendimento) >= DATE_TRUNC('DAY', CURRENT_TIMESTAMP) ORDER BY a.dataAtendimento ASC")
     List<Atendimento> findAllAtendimentosFromTodayAndOnwards();
     List<Atendimento> findByPacienteAndDataAtendimentoBetween(Paciente paciente, LocalDateTime startOfDay, LocalDateTime endOfDay);
     List<Atendimento> findAllByPaciente_NomeCompletoStartingWith(String letter);
@@ -40,7 +40,8 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     @Query("SELECT a FROM Atendimento a WHERE DATE(a.dataAtendimento) = :date")
     List<Atendimento> findByDataAtendimento(@Param("date") java.sql.Date date);
 
-    @Query(value = "SELECT * FROM Atendimento a WHERE LOWER(a.paciente_nome_completo) LIKE CONCAT(LOWER(?1), '%') AND DATE_TRUNC('DAY', a.data_atendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')", nativeQuery = true)
-    List<Atendimento> findAllByPaciente_NomeCompletoStartingWithAndDataAtendimentoToday(String letter);
+    @Query(value = "SELECT a FROM Atendimento a WHERE LOWER(a.paciente.nomeCompleto) LIKE CONCAT(LOWER(:letter), '%') AND DATE_TRUNC('DAY', a.dataAtendimento) = DATE_TRUNC('DAY', CURRENT_TIMESTAMP)")
+    List<Atendimento> findAllByPaciente_NomeCompletoStartingWithAndDataAtendimentoToday(@Param("letter") String letter);
+
 
 }
