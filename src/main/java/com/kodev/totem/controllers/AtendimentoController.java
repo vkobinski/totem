@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -93,7 +95,6 @@ public class AtendimentoController {
 
     public LocalDateTime formataHora(String dataHora) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
         return LocalDateTime.parse(dataHora, dateFormat);
     }
 
@@ -182,6 +183,29 @@ public class AtendimentoController {
 
         return ResponseEntity.ok(sortedAtendimentos);
     }
+
+    @PostMapping("/not-notified")
+    public ResponseEntity<String> checkIfNewNotified(@RequestParam Long userId) {
+
+        Usuario usuario = usuarioRepository.findUsuarioByMedico_MedicoId(userId);
+        LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        List<Atendimento> atendimentos = atendimentoService.getAtendimentosByMedicoIdByDay(usuario.getMedico().getMedicoId(), localDateTime);
+
+        boolean notify = false;
+
+        for(Atendimento atendimento: atendimentos) {
+           if(!atendimento.isNotified() && atendimento.isChegou()) {
+               notify = true;
+               atendimento.setNotified(true);
+               atendimentoService.criaAtendimento(atendimento);
+           }
+        }
+
+        if(notify) return ResponseEntity.ok("S");
+
+        return ResponseEntity.ok("N");
+    }
+
 
     @GetMapping("/today-and-forth")
     public ResponseEntity<List<Atendimento>> getAtendimentosTodayAndForth() {

@@ -37,4 +37,7 @@ public class Atendimento {
 
     @Column
     private boolean chegou = false;
+
+    @Column
+    private boolean notified = false;
 }
