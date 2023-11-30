@@ -142,7 +142,16 @@ public class AtendimentoController {
 
             Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(medico.get().getMedicoId());
 
-            atendimentoService.sendMessage(user);
+            String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            String horarioToken = atendimento.getDataAtendimento().format(formatter);
+
+            String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken;
+            try {
+                ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), mensagem);
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().build();
+            }
 
             return ResponseEntity.ok(atendimento1);
         }
@@ -199,17 +208,6 @@ public class AtendimentoController {
                notify = true;
                atendimento.setNotified(true);
                atendimentoService.criaAtendimento(atendimento);
-
-               String nomePaciente = atendimento.getPaciente().getNomeCompleto();
-               DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-               String horario = atendimento.getDataAtendimento().format(formatter);
-
-               String mensagem = "Paciente " + nomePaciente + " chegou para consulta de " + horario;
-               try {
-                   ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), "");
-               } catch (Exception e) {
-                   return ResponseEntity.internalServerError().body("Não foi possível notificar ao usuário");
-               }
            }
         }
 
