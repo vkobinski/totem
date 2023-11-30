@@ -31,9 +31,13 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Usuario> loginUsuario(@RequestParam String email, @RequestParam String senha) {
-        System.out.println(email + senha);
+    public ResponseEntity<Usuario> loginUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam String token) {
         Usuario usuario = usuarioService.findUsuarioByEmail(email);
+
+        usuario.getMedico().setToken(token);
+
+        System.out.println(token);
+
         if (usuario.getPassword().equals(senha) && usuario.getMedico().isAtivo()) return ResponseEntity.ok(usuario);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -71,7 +75,7 @@ public class UsuarioController {
 
 
     @PostMapping("/form-medico")
-    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam MultipartFile foto, @RequestParam String nomeCompleto) {
+    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam(required = false) MultipartFile foto, @RequestParam String nomeCompleto) {
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
         usuario.setPassword(senha);

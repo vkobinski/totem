@@ -21,8 +21,11 @@ public class Medico {
 
     @Lob
     @JdbcType(VarbinaryJdbcType.class)
-    @Column(name = "foto", nullable = false)
+    @Column(name = "foto", nullable = true)
     private byte[] foto;
+
+    @Column
+    private String token;
 
     @Column
     private boolean ativo = true;
