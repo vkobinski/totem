@@ -4,6 +4,7 @@ import com.kodev.totem.models.Atendimento;
 import com.kodev.totem.models.Medico;
 import com.kodev.totem.models.Paciente;
 import com.kodev.totem.models.Usuario;
+import com.kodev.totem.push.ExpoPushNotification;
 import com.kodev.totem.repositories.MedicoRepository;
 import com.kodev.totem.repositories.PacienteRepository;
 import com.kodev.totem.repositories.UsuarioRepository;
@@ -141,7 +142,16 @@ public class AtendimentoController {
 
             Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(medico.get().getMedicoId());
 
-            atendimentoService.sendMessage(user);
+            String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            String horarioToken = atendimento.getDataAtendimento().format(formatter);
+
+            String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken;
+            try {
+                ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), mensagem);
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().build();
+            }
 
             return ResponseEntity.ok(atendimento1);
         }
