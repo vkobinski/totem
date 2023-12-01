@@ -3,18 +3,15 @@ package com.kodev.totem.controllers;
 import com.kodev.totem.enums.Roles;
 import com.kodev.totem.models.Medico;
 import com.kodev.totem.models.Usuario;
+import com.kodev.totem.repositories.UsuarioRepository;
 import com.kodev.totem.services.MedicoService;
 import com.kodev.totem.services.UsuarioService;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,11 +20,13 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final MedicoService medicoService;
+    private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public UsuarioController(UsuarioService usuarioService, MedicoService medicoService) {
+    public UsuarioController(UsuarioService usuarioService, MedicoService medicoService, UsuarioRepository usuarioRepository) {
         this.usuarioService = usuarioService;
         this.medicoService = medicoService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping("/login")
@@ -35,6 +34,9 @@ public class UsuarioController {
         Usuario usuario = usuarioService.findUsuarioByEmail(email);
 
         usuario.getMedico().setToken(token);
+
+        usuarioRepository.save(usuario);
+
 
         System.out.println(token);
 

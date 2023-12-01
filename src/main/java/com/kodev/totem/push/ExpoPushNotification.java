@@ -17,7 +17,7 @@ public class ExpoPushNotification {
 
         ExpoPushMessage expoPushMessage = new ExpoPushMessage();
         expoPushMessage.getTo().add(recipient);
-        expoPushMessage.setTitle(title);
+        expoPushMessage.setTitle("Paciente Chegou!");
         expoPushMessage.setBody(message);
 
         List<ExpoPushMessage> expoPushMessages = new ArrayList<>();

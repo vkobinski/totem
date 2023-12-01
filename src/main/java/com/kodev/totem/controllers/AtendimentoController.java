@@ -142,17 +142,6 @@ public class AtendimentoController {
 
             Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(medico.get().getMedicoId());
 
-            String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            String horarioToken = atendimento.getDataAtendimento().format(formatter);
-
-            String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken;
-            try {
-                ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), mensagem);
-            } catch (Exception e) {
-                return ResponseEntity.internalServerError().build();
-            }
-
             return ResponseEntity.ok(atendimento1);
         }
 

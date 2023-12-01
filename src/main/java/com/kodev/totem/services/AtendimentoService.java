@@ -4,6 +4,7 @@ import com.kodev.totem.models.Atendimento;
 import com.kodev.totem.models.Medico;
 import com.kodev.totem.models.Paciente;
 import com.kodev.totem.models.Usuario;
+import com.kodev.totem.push.ExpoPushNotification;
 import com.kodev.totem.repositories.AtendimentoRepository;
 import com.kodev.totem.repositories.MedicoRepository;
 import com.kodev.totem.repositories.PacienteRepository;
@@ -13,6 +14,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.TextMessage;
@@ -24,6 +26,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -122,22 +125,30 @@ public class AtendimentoService {
         List<Atendimento> atendimentos = atendimentoRepository.findByPacienteAndDataAtendimentoBetween(paciente, startOfDay, endOfDay);
 
         for (Atendimento aT : atendimentos) {
-            aT.setChegou(true);
-
             try {
                 aT.setFotoPaciente(fotoPaciente.getBytes());
             } catch (Exception e ) {
                 System.out.println(e.getMessage());
             }
 
+            if(aT.isChegou()) continue;
+
+            aT.setChegou(true);
+
             atendimentoRepository.save(aT);
 
-            Usuario userMedico = usuarioService.getUsuarioByMedicoId(aT.getMedico().getMedicoId());
+            Medico medico = aT.getMedico();
+
+            String nomePacienteToken = aT.getPaciente().getNomeCompleto();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            String horarioToken = aT.getDataAtendimento().format(formatter);
+
+            String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken;
             try {
-                WebSocketSession socketForUser = usuarioService.getSocketForUser(userMedico);
-                socketForUser.sendMessage(new TextMessage("S"));
-            } catch (IOException e) {
-                e.printStackTrace();
+                ExpoPushNotification.sendPush(medico.getToken(), mensagem);
+            } catch (Exception e) {
+                log.atError().log("Could not send message to Medico");
+                log.atError().log(e.getMessage());
             }
         }
     }
