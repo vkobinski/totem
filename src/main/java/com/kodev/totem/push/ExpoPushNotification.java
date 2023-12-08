@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 public class ExpoPushNotification {
         public static void sendPush(String recipient, String message, String title) throws PushClientException, InterruptedException {
-        String title = "Paciente Chegou!";
 
         if (!PushClient.isExponentPushToken(recipient))
             throw new Error("Token:" + recipient + " is not a valid token.");
