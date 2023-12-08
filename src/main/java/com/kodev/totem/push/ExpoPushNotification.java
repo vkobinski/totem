@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class ExpoPushNotification {
-        public static void sendPush(String recipient, String message) throws PushClientException, InterruptedException {
+        public static void sendPush(String recipient, String message, String title) throws PushClientException, InterruptedException {
         String title = "Paciente Chegou!";
 
         if (!PushClient.isExponentPushToken(recipient))
@@ -17,7 +17,7 @@ public class ExpoPushNotification {
 
         ExpoPushMessage expoPushMessage = new ExpoPushMessage();
         expoPushMessage.getTo().add(recipient);
-        expoPushMessage.setTitle("Paciente Chegou!");
+        expoPushMessage.setTitle(title);
         expoPushMessage.setBody(message);
 
         List<ExpoPushMessage> expoPushMessages = new ArrayList<>();

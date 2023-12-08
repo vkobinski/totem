@@ -59,6 +59,16 @@ public class AtendimentoService {
         return result;
     }
     public Atendimento criaAtendimento(Atendimento atendimento) {
+
+        String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM às HH:mm");
+        String horarioToken = atendimento.getDataAtendimento().format(formatter);
+
+        try {
+            ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), "Novo atendimento marcado para " + horarioToken, "Novo Atendimento Marcado!");
+        } catch (Exception e) {
+            log.error("Não foi possível enviar push notification!");
+        }
         return atendimentoRepository.save(atendimento);
     }
 
@@ -145,7 +155,7 @@ public class AtendimentoService {
 
             String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken;
             try {
-                ExpoPushNotification.sendPush(medico.getToken(), mensagem);
+                ExpoPushNotification.sendPush(medico.getToken(), mensagem, "Paciente chegou!");
             } catch (Exception e) {
                 log.atError().log("Could not send message to Medico");
                 log.atError().log(e.getMessage());
