@@ -20,6 +20,23 @@ public class PacienteService {
     public Paciente criaPaciente(Paciente paciente) {
         return pacienteRepository.save(paciente);
     }
+    
+    public Paciente edita(Paciente paciente) {
+
+        Optional<Paciente> find = pacienteRepository.findById(paciente.getPacienteId());
+
+        if(find.isPresent()) {
+            Paciente pacienteFind = find.get();
+            pacienteFind.setNomeCompleto(paciente.getNomeCompleto());
+            pacienteFind.setDataNascimento(paciente.getDataNascimento());
+
+            pacienteRepository.save(pacienteFind);
+
+            return pacienteFind;
+        }
+
+        return null;
+    }
 
     public List<Paciente> getPacientes() {
         List<Paciente> pacientes = pacienteRepository.findAll();

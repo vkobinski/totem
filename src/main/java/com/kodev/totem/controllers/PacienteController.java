@@ -37,6 +37,23 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteCriado);
     }
 
+    @PutMapping("/form/{id}")
+    public ResponseEntity<Paciente> editaForm(@PathVariable Long id, @RequestParam String nomeCompleto, @RequestParam String dataNascimento) throws ParseException {
+
+        if(nomeCompleto.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        Paciente pacienteCriado = new Paciente();
+        pacienteCriado.setNomeCompleto(nomeCompleto);
+        pacienteCriado.setPacienteId(id);
+
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
+
+        pacienteCriado.setDataNascimento(new Date(parse.getTime()));
+        Paciente pacienteSalvo = pacienteService.edita(pacienteCriado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteSalvo);
+    }
+
     @PostMapping
     public ResponseEntity<Paciente> criaPaciente(@RequestBody Paciente paciente) {
         Paciente pacienteCriado = pacienteService.criaPaciente(paciente);
