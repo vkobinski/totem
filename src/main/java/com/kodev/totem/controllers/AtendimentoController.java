@@ -100,7 +100,7 @@ public class AtendimentoController {
     }
 
     @PostMapping("/app/form")
-    public ResponseEntity<Atendimento> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataHora) {
+    public ResponseEntity<Object> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataHora) {
         Optional<Usuario> userOp = usuarioRepository.findById(userId);
         Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCase(nomePaciente);
 
@@ -114,7 +114,11 @@ public class AtendimentoController {
         atendimento.setDataAtendimento(formataHora(dataHora));
         atendimento.setChegou(false);
 
-        atendimentoService.criaAtendimento(atendimento);
+        try {
+            atendimentoService.criaAtendimento(atendimento);
+        } catch (Exception e) {
+            System.out.println("Não foi possível agendar porque paciente tem status false!");
+        }
 
         return ResponseEntity.ok(atendimento);
     }
@@ -137,11 +141,6 @@ public class AtendimentoController {
             atendimento.setPaciente(paciente.get());
             atendimento.setDataAtendimento(timestamp);
             atendimento.setChegou(false);
-
-            if(!paciente.get().isAtivo()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Paciente está inativo!");
-            }
-
 
             Atendimento atendimento1 = atendimentoService.criaAtendimento(atendimento);
 

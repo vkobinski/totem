@@ -23,11 +23,17 @@ public class PacienteService {
 
     public List<Paciente> getPacientes() {
         List<Paciente> pacientes = pacienteRepository.findAll();
+        return pacientes;
+    }
+
+    public List<Paciente> getPacientesAtivos() {
+        List<Paciente> pacientes = pacienteRepository.findAll();
         pacientes.removeIf((p) -> {
             return !p.isAtivo();
         });
         return pacientes;
     }
+
 
     public Paciente deletePaciente(Long id) {
         Optional<Paciente> pacId = pacienteRepository.findById(id);
@@ -43,6 +49,7 @@ public class PacienteService {
         if(find.isPresent()) {
             Paciente paciente = find.get();
             paciente.setAtivo(!paciente.isAtivo());
+            pacienteRepository.save(paciente);
 
             return true;
         }

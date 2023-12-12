@@ -22,6 +22,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,11 +59,15 @@ public class AtendimentoService {
 
         return result;
     }
-    public Atendimento criaAtendimento(Atendimento atendimento) {
+    public Atendimento criaAtendimento(Atendimento atendimento) throws EntityNotFoundException {
 
         String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM às HH:mm");
         String horarioToken = atendimento.getDataAtendimento().format(formatter);
+
+        if(!atendimento.getPaciente().isAtivo()) {
+            throw new EntityNotFoundException();
+        }
 
         try {
             ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), "Novo atendimento marcado para " + horarioToken, "Novo Atendimento Marcado!");

@@ -47,7 +47,12 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.OK).body(pacienteService.getPacientes());
     }
 
-    @GetMapping("/status/{id}")
+    @GetMapping("/ativo")
+    public ResponseEntity<List<Paciente>> getPacientesAtivos() {
+        return ResponseEntity.status(HttpStatus.OK).body(pacienteService.getPacientesAtivos());
+    }
+
+        @GetMapping("/status/{id}")
     public ResponseEntity<String> changeStatus(@PathVariable Long id) {
         boolean change = pacienteService.changeStatus(id);
         if(change) return ResponseEntity.status(HttpStatus.OK).body("Status do paciente " + id + " mudou");
