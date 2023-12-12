@@ -120,7 +120,7 @@ public class AtendimentoController {
     }
 
     @PostMapping
-    public ResponseEntity<Atendimento> criaAtendimento(@RequestParam String nomeMedico, @RequestParam String nomePaciente,@RequestParam String dataNascimento, @RequestParam String dataHora) throws ParseException {
+    public ResponseEntity<Object> criaAtendimento(@RequestParam String nomeMedico, @RequestParam String nomePaciente,@RequestParam String dataNascimento, @RequestParam String dataHora) throws ParseException {
         SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
         java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
         java.sql.Date dataSql = new Date(parse.getTime());
@@ -131,11 +131,16 @@ public class AtendimentoController {
         LocalDateTime timestamp = formataHora(dataHora);
 
         if(paciente.isPresent() && medico.isPresent()) {
+
             Atendimento atendimento = new Atendimento();
             atendimento.setMedico(medico.get());
             atendimento.setPaciente(paciente.get());
             atendimento.setDataAtendimento(timestamp);
             atendimento.setChegou(false);
+
+            if(!paciente.get().isAtivo()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Paciente está inativo!");
+            }
 
 
             Atendimento atendimento1 = atendimentoService.criaAtendimento(atendimento);

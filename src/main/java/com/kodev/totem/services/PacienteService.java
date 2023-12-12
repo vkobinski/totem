@@ -22,7 +22,11 @@ public class PacienteService {
     }
 
     public List<Paciente> getPacientes() {
-        return pacienteRepository.findAll();
+        List<Paciente> pacientes = pacienteRepository.findAll();
+        pacientes.removeIf((p) -> {
+            return !p.isAtivo();
+        });
+        return pacientes;
     }
 
     public Paciente deletePaciente(Long id) {
@@ -33,6 +37,18 @@ public class PacienteService {
         }).orElseThrow(EntityNotFoundException::new);
     }
 
+    public boolean changeStatus(Long idPaciente) {
+        Optional<Paciente> find = pacienteRepository.findById(idPaciente);
+
+        if(find.isPresent()) {
+            Paciente paciente = find.get();
+            paciente.setAtivo(!paciente.isAtivo());
+
+            return true;
+        }
+
+        return false;
+    }
     public List<Paciente> getPacientesByNomeCompletoContaining(String nome) {
         return pacienteRepository.getPacienteByNomeCompletoContainingIgnoreCase(nome);
     }

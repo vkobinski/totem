@@ -47,6 +47,14 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.OK).body(pacienteService.getPacientes());
     }
 
+    @GetMapping("/status/{id}")
+    public ResponseEntity<String> changeStatus(@PathVariable Long id) {
+        boolean change = pacienteService.changeStatus(id);
+        if(change) return ResponseEntity.status(HttpStatus.OK).body("Status do paciente " + id + " mudou");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não foi possível encontrar paciente " + id);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Paciente> deletePaciente(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(pacienteService.deletePaciente(id));
