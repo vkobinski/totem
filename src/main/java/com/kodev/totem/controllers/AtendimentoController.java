@@ -10,6 +10,7 @@ import com.kodev.totem.repositories.PacienteRepository;
 import com.kodev.totem.repositories.UsuarioRepository;
 import com.kodev.totem.services.AtendimentoService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.atn.ATN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.Problem;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/api/v1/atendimento")
+@Slf4j
 public class AtendimentoController {
 
     private final AtendimentoService atendimentoService;
@@ -229,12 +231,14 @@ public class AtendimentoController {
 
     @PutMapping("/desmarcar")
     public ResponseEntity<Object> desmarcaAtendimento(@RequestParam Long idAtendimento) {
+        log.debug("Desmarcando /desmarcar");
         atendimentoService.desmarcaAtendimento(idAtendimento);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/desmarcar-buscando")
     public ResponseEntity<Object> desmarcaAtendimento(@RequestParam String nomePaciente, @RequestParam String dataNascimento, @RequestParam String dataAtendimento) throws ParseException {
+        log.debug("Desmarcando /desmarcar-buscando");
         atendimentoService.desmarcaAtendimentoBuscando(nomePaciente, dataNascimento, dataAtendimento);
         return ResponseEntity.ok().build();
     }
