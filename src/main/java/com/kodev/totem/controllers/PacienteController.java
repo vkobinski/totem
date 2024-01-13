@@ -22,7 +22,7 @@ public class PacienteController {
     }
 
     @PostMapping("/form")
-    public ResponseEntity<Paciente> criaPacienteForm(@RequestParam String nomeCompleto, @RequestParam String dataNascimento) throws ParseException {
+    public ResponseEntity<Paciente> criaPacienteForm(@RequestParam String nomeCompleto, @RequestParam String dataNascimento) throws ParseException, InterruptedException {
 
         if(nomeCompleto.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
@@ -34,6 +34,8 @@ public class PacienteController {
 
         pacienteCriado.setDataNascimento(new Date(parse.getTime()));
         pacienteCriado = pacienteService.criaPaciente(pacienteCriado);
+
+        Thread.sleep(1000);
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteCriado);
     }
 

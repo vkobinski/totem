@@ -77,7 +77,7 @@ public class UsuarioController {
 
 
     @PostMapping("/form-medico")
-    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam(required = false) MultipartFile foto, @RequestParam String nomeCompleto) {
+    public ResponseEntity<Usuario> criaUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam(required = false) MultipartFile foto, @RequestParam String nomeCompleto) throws InterruptedException {
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
         usuario.setPassword(senha);
@@ -95,6 +95,8 @@ public class UsuarioController {
         medico = medicoService.criaMedico(medico);
 
         usuario.setMedico(medico);
+
+        Thread.sleep(1000);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criaUsuario(usuario));
 

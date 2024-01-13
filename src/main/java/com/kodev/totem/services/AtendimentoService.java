@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.log4j.Log4j2;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
@@ -95,10 +96,12 @@ public class AtendimentoService {
 
 
     public void desmarcaAtendimento(Long idAtendimento) {
+        log.debug("Desmarcando atendimento de id: " + idAtendimento);
         atendimentoRepository.deleteById(idAtendimento);
     }
 
     public void desmarcaAtendimentoBuscando(String nomePaciente, String dataNascimento, String dataAtendimento) throws ParseException {
+        log.debug("Desmarcando atendimento de paciente: " + nomePaciente);
         SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
         java.sql.Date parse = new java.sql.Date(dateTimeFormatter.parse(dataNascimento).getTime());
 

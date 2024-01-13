@@ -34,6 +34,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/api/v1/atendimento")
@@ -100,7 +103,7 @@ public class AtendimentoController {
     }
 
     @PostMapping("/app/form")
-    public ResponseEntity<Object> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataHora) {
+    public ResponseEntity<Object> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataHora) throws InterruptedException {
         Optional<Usuario> userOp = usuarioRepository.findById(userId);
         Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCase(nomePaciente);
 
@@ -124,7 +127,7 @@ public class AtendimentoController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> criaAtendimento(@RequestParam String nomeMedico, @RequestParam String nomePaciente,@RequestParam String dataNascimento, @RequestParam String dataHora) throws ParseException {
+    public ResponseEntity<Object> criaAtendimento(@RequestParam String nomeMedico, @RequestParam String nomePaciente,@RequestParam String dataNascimento, @RequestParam String dataHora) throws ParseException, InterruptedException {
         SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
         java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
         java.sql.Date dataSql = new Date(parse.getTime());
@@ -146,6 +149,7 @@ public class AtendimentoController {
 
             Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(medico.get().getMedicoId());
 
+            Thread.sleep(1000);
             return ResponseEntity.ok(atendimento1);
         }
 
