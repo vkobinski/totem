@@ -12,7 +12,7 @@ public class ExpoPushNotification {
         public static void sendPush(String recipient, String message, String title) throws PushClientException, InterruptedException {
 
         if (!PushClient.isExponentPushToken(recipient))
-            throw new Error("Token:" + recipient + " is not a valid token.");
+            throw new RuntimeException("Token:" + recipient + " is not a valid token.");
 
         ExpoPushMessage expoPushMessage = new ExpoPushMessage();
         expoPushMessage.getTo().add(recipient);
@@ -67,12 +67,6 @@ public class ExpoPushNotification {
                         " messages: " +
                         errorTicketMessagesString
         );
-
-        int wait = 30;
-        for (int i = wait; i >= 0; i--) {
-            System.out.print("Waiting for " + wait + " seconds. " + i + "s\r");
-            Thread.sleep(1000);
-        }
 
         List<String> ticketIds = (client.getTicketIdsFromPairs(okTicketMessages));
         CompletableFuture<List<ExpoPushReceipt>> receiptFutures = client.getPushNotificationReceiptsAsync(ticketIds);

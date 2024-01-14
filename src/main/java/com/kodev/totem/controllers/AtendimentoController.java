@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -166,9 +167,9 @@ public class AtendimentoController {
 
     @PostMapping("/search-by-day")
     public ResponseEntity<List<Atendimento>> getAtendimentosForMedicoByDay(@RequestParam Long userId, @RequestParam String day) throws ParseException {
-
+        java.util.Date from = java.util.Date.from(Instant.now());
         SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
-        java.util.Date parse = dateTimeFormatter.parse(day + "/2023");
+        java.util.Date parse = dateTimeFormatter.parse(day);
         java.sql.Date dataSql = new Date(parse.getTime());
         LocalDateTime localDateTime = dataSql.toLocalDate().atStartOfDay();
         Usuario usuario = usuarioRepository.findUsuarioByMedico_MedicoId(userId);
@@ -189,6 +190,10 @@ public class AtendimentoController {
         List<Atendimento> sortedAtendimentos = atendimentos.stream()
                 .sorted(Comparator.comparing(Atendimento::getDataAtendimento))
                 .toList();
+
+        atendimentos.forEach((atendimento -> {
+            atendimento.setMedico(null);
+        }));
 
         return ResponseEntity.ok(sortedAtendimentos);
     }

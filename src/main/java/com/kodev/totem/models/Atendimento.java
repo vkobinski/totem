@@ -40,4 +40,6 @@ public class Atendimento {
 
     @Column
     private boolean notified = false;
+    @Column
+    private boolean ativo = true;
 }

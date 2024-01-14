@@ -31,14 +31,14 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<Usuario> loginUsuario(@RequestParam String email, @RequestParam String senha, @RequestParam String token) {
+
+        System.out.println(email + " " + senha);
+
         Usuario usuario = usuarioService.findUsuarioByEmail(email);
 
-        usuario.getMedico().setToken(token);
+        if(!token.isEmpty()) usuario.getMedico().setToken(token);
 
         usuarioRepository.save(usuario);
-
-
-        System.out.println(token);
 
         if (usuario.getPassword().equals(senha) && usuario.getMedico().isAtivo()) return ResponseEntity.ok(usuario);
 

@@ -71,11 +71,13 @@ public class AtendimentoService {
         }
 
         try {
-            ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), "Novo atendimento marcado para " + horarioToken, "Novo Atendimento Marcado!");
+            ExpoPushNotification.sendPush(atendimento.getMedico().getToken(), "Novo atendimento marcado para " + horarioToken + ".", "Novo Atendimento Marcado!");
         } catch (Exception e) {
             log.error("Não foi possível enviar push notification!");
         }
-        return atendimentoRepository.save(atendimento);
+        log.error("Here");
+        Atendimento save = atendimentoRepository.save(atendimento);
+        return save;
     }
 
     public List<Atendimento> getAtendimentosByMedicoId(Long id) {
@@ -97,7 +99,13 @@ public class AtendimentoService {
 
     public void desmarcaAtendimento(Long idAtendimento) {
         log.debug("Desmarcando atendimento de id: " + idAtendimento);
-        atendimentoRepository.deleteById(idAtendimento);
+        //atendimentoRepository.deleteById(idAtendimento);
+
+        Optional<Atendimento> byId = atendimentoRepository.findById(idAtendimento);
+        byId.ifPresent((atendimento -> {
+            atendimento.setAtivo(false);
+            atendimentoRepository.save(atendimento);
+        }));
     }
 
     public void desmarcaAtendimentoBuscando(String nomePaciente, String dataNascimento, String dataAtendimento) throws ParseException {
@@ -109,7 +117,9 @@ public class AtendimentoService {
 
         parse = new java.sql.Date(dateTimeFormatter.parse(dataAtendimento).getTime());
         Atendimento atendimento = atendimentoRepository.findByPacienteAndDataAtendimento(paciente, parse);
-        atendimentoRepository.deleteById(atendimento.getAtendimentoId());
+        //atendimentoRepository.deleteById(atendimento.getAtendimentoId());
+        atendimento.setAtivo(false);
+        atendimentoRepository.save(atendimento);
     }
 
     @Transient
@@ -161,8 +171,9 @@ public class AtendimentoService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             String horarioToken = aT.getDataAtendimento().format(formatter);
 
-            String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken;
+            String mensagem = "Paciente " + nomePacienteToken + " chegou para consulta de " + horarioToken + ".";
             try {
+                System.out.println(medico.getToken());
                 ExpoPushNotification.sendPush(medico.getToken(), mensagem, "Paciente chegou!");
             } catch (Exception e) {
                 log.atError().log("Could not send message to Medico");
