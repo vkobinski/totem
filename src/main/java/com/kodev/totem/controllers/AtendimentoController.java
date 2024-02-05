@@ -106,9 +106,20 @@ public class AtendimentoController {
     }
 
     @PostMapping("/app/form")
-    public ResponseEntity<Object> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataHora) throws InterruptedException {
+    public ResponseEntity<Object> criaAtendimento(@RequestParam Long userId, @RequestParam String nomePaciente, @RequestParam String dataNascimento, @RequestParam String dataHora) throws InterruptedException, ParseException {
+
         Optional<Usuario> userOp = usuarioRepository.findById(userId);
-        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCase(nomePaciente);
+        Optional<Paciente> paciente;
+
+        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
+
+
+        try{
+            paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCaseAndDataNascimentoAndAtivoIsTrue(nomePaciente, new Date(parse.getTime()));
+        } catch (Exception e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Não foi possível encontrar apenas um registro do paciente")).build();
+        }
 
 
         if(userOp.isEmpty()) return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Médico não encontrado")).build();
@@ -120,10 +131,17 @@ public class AtendimentoController {
         atendimento.setDataAtendimento(formataHora(dataHora));
         atendimento.setChegou(false);
 
+        Atendimento returnAtendimento = null;
+
         try {
-            atendimentoService.criaAtendimento(atendimento);
+            returnAtendimento = atendimentoService.criaAtendimento(atendimento);
         } catch (Exception e) {
             System.out.println("Não foi possível agendar porque paciente tem status false!");
+        }
+
+        if(returnAtendimento == null) {
+            log.debug("Ocupado");
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "ocupado")).build();
         }
 
         return ResponseEntity.ok(atendimento);
@@ -135,10 +153,17 @@ public class AtendimentoController {
         java.util.Date parse = dateTimeFormatter.parse(dataNascimento);
         java.sql.Date dataSql = new Date(parse.getTime());
 
-        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCaseAndDataNascimento(nomePaciente, dataSql);
+        List<Paciente> pacientes = pacienteRepository.getPacientesByNomeCompletoContainingIgnoreCaseAndDataNascimentoAndAtivoIsTrue(nomePaciente, dataSql);
         Optional<Medico> medico = medicoRepository.findMedicoByNomeCompletoIgnoreCase(nomeMedico);
 
         LocalDateTime timestamp = formataHora(dataHora);
+
+
+        if(pacientes.size() > 1) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Não foi possível encontrar apenas um registro do paciente")).build();
+        }
+
+        Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCaseAndDataNascimentoAndAtivoIsTrue(nomePaciente, dataSql);
 
         if(paciente.isPresent() && medico.isPresent()) {
 
@@ -152,7 +177,6 @@ public class AtendimentoController {
 
             Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(medico.get().getMedicoId());
 
-            Thread.sleep(1000);
             return ResponseEntity.ok(atendimento1);
         }
 
@@ -180,18 +204,13 @@ public class AtendimentoController {
             atendimento.getMedico().setFoto(null);
         });
 
-        if(atendimentos.size() > 2) {
-            if(atendimentos.get(0).getFotoPaciente() == atendimentos.get(1).getFotoPaciente()) {
-                System.out.println("1");
-            }
-        }
-
-
         List<Atendimento> sortedAtendimentos = atendimentos.stream()
                 .sorted(Comparator.comparing(Atendimento::getDataAtendimento))
+                .dropWhile(atendimento -> !atendimento.isAtivo())
                 .toList();
 
         atendimentos.forEach((atendimento -> {
+            atendimento.getPaciente().setAtivo(true);
             atendimento.setMedico(null);
         }));
 
@@ -233,6 +252,13 @@ public class AtendimentoController {
 
         return ResponseEntity.ok(todayAtendimentos);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        atendimentoService.delete(id);
+        return ResponseEntity.ok("Deleted");
+    }
+
 
     @PutMapping("/desmarcar")
     public ResponseEntity<Object> desmarcaAtendimento(@RequestParam Long idAtendimento) {

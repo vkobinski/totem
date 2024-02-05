@@ -35,7 +35,8 @@ public class PacienteController {
         pacienteCriado.setDataNascimento(new Date(parse.getTime()));
         pacienteCriado = pacienteService.criaPaciente(pacienteCriado);
 
-        Thread.sleep(1000);
+        if(pacienteCriado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteCriado);
     }
 

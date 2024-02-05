@@ -18,6 +18,11 @@ public class PacienteService {
     }
 
     public Paciente criaPaciente(Paciente paciente) {
+
+        List<Paciente> pacientes = pacienteRepository.getPacientesByNomeCompletoContainingIgnoreCaseAndDataNascimentoAndAtivoIsTrue(paciente.getNomeCompleto(), paciente.getDataNascimento());
+
+        if(!pacientes.isEmpty()) return null;
+
         return pacienteRepository.save(paciente);
     }
     

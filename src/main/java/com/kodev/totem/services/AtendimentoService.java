@@ -3,28 +3,18 @@ package com.kodev.totem.services;
 import com.kodev.totem.models.Atendimento;
 import com.kodev.totem.models.Medico;
 import com.kodev.totem.models.Paciente;
-import com.kodev.totem.models.Usuario;
 import com.kodev.totem.push.ExpoPushNotification;
 import com.kodev.totem.repositories.AtendimentoRepository;
 import com.kodev.totem.repositories.MedicoRepository;
 import com.kodev.totem.repositories.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Transient;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.log4j.Log4j2;
-import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.sql.Date;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -40,15 +30,16 @@ public class AtendimentoService {
     private final AtendimentoRepository atendimentoRepository;
     private final PacienteRepository pacienteRepository;
     private final MedicoRepository medicoRepository;
-
+    private final DisponibilidadeService disponibilidadeService;
     private final UsuarioService usuarioService;
 
 
     @Autowired
-    public AtendimentoService(AtendimentoRepository atendimentoRepository, PacienteRepository pacienteRepository, MedicoRepository medicoRepository, UsuarioService usuarioService) {
+    public AtendimentoService(AtendimentoRepository atendimentoRepository, PacienteRepository pacienteRepository, MedicoRepository medicoRepository, DisponibilidadeService disponibilidadeService, UsuarioService usuarioService) {
         this.atendimentoRepository = atendimentoRepository;
         this.pacienteRepository = pacienteRepository;
         this.medicoRepository = medicoRepository;
+        this.disponibilidadeService = disponibilidadeService;
         this.usuarioService = usuarioService;
     }
 
@@ -60,7 +51,31 @@ public class AtendimentoService {
 
         return result;
     }
+
+    public boolean checkIfOccupied(Atendimento atendimento) {
+
+        List<Atendimento> all = atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(atendimento.getMedico().getMedicoId(), atendimento.getDataAtendimento());
+
+        for (Atendimento at : all) {
+            boolean eqHour = at.getDataAtendimento().getHour() == atendimento.getDataAtendimento().getHour();
+            boolean eqMin = at.getDataAtendimento().getMinute() == atendimento.getDataAtendimento().getMinute();
+
+            if(eqHour && eqMin) return true;
+        }
+
+        return false;
+    }
+
     public Atendimento criaAtendimento(Atendimento atendimento) throws EntityNotFoundException {
+
+        int hour = atendimento.getDataAtendimento().getHour();
+        int minute = atendimento.getDataAtendimento().getMinute();
+
+        boolean free = disponibilidadeService.checkIfTimeOccupied(hour, minute, Date.valueOf(atendimento.getDataAtendimento().toLocalDate()), atendimento.getMedico().getMedicoId());
+        boolean occupied = checkIfOccupied(atendimento);
+
+        if(!free) return null;
+        if(occupied) return null;
 
         String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM às HH:mm");
@@ -134,16 +149,6 @@ public class AtendimentoService {
         return "Appointment marked as patient arrived.";
     }
 
-    public void sendMessage(Usuario usuario) {
-        WebSocketSession socket = usuarioService.getSocketForUser(usuario);
-
-        try{
-            socket.sendMessage(new TextMessage("S"));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     public void sendMessage(Paciente paciente, MultipartFile fotoPaciente) {
 
         LocalDateTime today = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
@@ -201,5 +206,9 @@ public class AtendimentoService {
 
     public List<Atendimento> getAtendimentosAndForth() {
         return atendimentoRepository.findAllAtendimentosFromTodayAndOnwards();
+    }
+
+    public void delete(Long id) {
+        atendimentoRepository.deleteById(id);
     }
 }

@@ -11,11 +11,12 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
 
     public Optional<Paciente> findPacienteByNomeCompletoIgnoreCase(String nome);
 
-    public Optional<Paciente> findPacienteByNomeCompletoIgnoreCaseAndDataNascimento(String nome, Date dataNascimento);
+    public Optional<Paciente> findPacienteByNomeCompletoIgnoreCaseAndDataNascimentoAndAtivoIsTrue(String nome, Date dataNascimento);
 
     public List<Paciente> getPacienteByNomeCompletoContainingIgnoreCase(String nome);
 
     public Paciente getPacienteByNomeCompletoContainingIgnoreCaseAndDataNascimento(String nome, Date dataNascimento);
+    public List<Paciente> getPacientesByNomeCompletoContainingIgnoreCaseAndDataNascimentoAndAtivoIsTrue(String nome, Date dataNascimento);
 
     public List<Paciente> getPacienteByNomeCompletoStartingWithIgnoreCase(String firstLetter);
 
