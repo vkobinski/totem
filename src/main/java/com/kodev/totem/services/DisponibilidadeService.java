@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -29,7 +32,7 @@ public class DisponibilidadeService {
         this.medicoService = medicoService;
     }
 
-    private java.sql.Date convertDate(String date)  {
+    private java.sql.Date convertDate(String date) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         java.util.Date parse = null;
@@ -55,14 +58,14 @@ public class DisponibilidadeService {
         boolean isStart = false;
         boolean isEnd = false;
 
-        if(dis.getHoraInicio() <= hours) {
-            if(dis.getMinutoInicio() <= minutes) {
+        if (dis.getHoraInicio() <= hours) {
+            if (dis.getMinutoInicio() <= minutes) {
                 isStart = true;
             }
         }
 
-        if(dis.getHoraFim() >= hours) {
-            if(dis.getMinutoFim() >= minutes) {
+        if (dis.getHoraFim() >= hours) {
+            if (dis.getMinutoFim() >= minutes) {
                 isEnd = true;
             }
         }
@@ -75,24 +78,18 @@ public class DisponibilidadeService {
         List<Disponibilidade> disList = new ArrayList<>();
 
         dayList.forEach((day) -> {
+            java.sql.Date date = convertDate(day);
+            List<Disponibilidade> all = disponibilidadeRepository.getAllByDiaAndMedico_MedicoId(date, Long.parseLong(medicoId));
 
-                java.sql.Date date = convertDate(day);
-                List<Disponibilidade> all = disponibilidadeRepository.getAllByDiaAndMedico_MedicoId(date, Long.parseLong(medicoId));
+            all.forEach((d) -> d.setMedico(null));
 
-                all.stream()
-                                .forEach((d) -> d.setMedico(null));
+            disList.addAll(all);
 
-                disList.addAll(all);
-
-        });
-
-        dayList.forEach((day) -> {
             LocalDateTime time;
-                Date date = convertDate(day);
-                time = date.toLocalDate().atStartOfDay();
-            List<Atendimento> all = atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(Long.parseLong(medicoId), time);
+            time = date.toLocalDate().atStartOfDay();
+            List<Atendimento> allAten = atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(Long.parseLong(medicoId), time);
 
-            all.forEach((a) -> {
+            allAten.forEach((a) -> {
                 Disponibilidade dis = new Disponibilidade();
 
                 dis.setHoraInicio(a.getDataAtendimento().getHour());
@@ -105,8 +102,20 @@ public class DisponibilidadeService {
                 disList.add(dis);
             });
 
-        });
+            if(all.isEmpty() && allAten.isEmpty()) {
+                Disponibilidade dis = new Disponibilidade();
 
+                dis.setHoraInicio(0);
+                dis.setHoraFim(0);
+                dis.setMinutoFim(0);
+                dis.setMinutoInicio(0);
+                dis.setDia(convertDate(day));
+                dis.setAtendimento(false);
+
+                disList.add(dis);
+            }
+
+        });
 
         return disList;
 
@@ -116,10 +125,17 @@ public class DisponibilidadeService {
 
         List<Disponibilidade> all = disponibilidadeRepository.getAllByDiaAndMedico_MedicoId(date, medicoId);
 
+        if(date.toLocalDate().getDayOfWeek() == DayOfWeek.SUNDAY){
+            return true;
+        }
+
+        if(hour < 7 || hour >= 21) return true;
+
         for (Disponibilidade d : all) {
             boolean r = checkIfTimeIsInDisponibilidade(d, "%d:%d".formatted(hour, minute));
-            if(r) return true;
-        };
+            if (r) return true;
+        }
+        ;
 
         return false;
     }
@@ -165,7 +181,7 @@ public class DisponibilidadeService {
                 String horaFim;
                 String minutoFim;
 
-                if(rec.horarios.size()-1 == i) {
+                if (rec.horarios.size() - 1 == i) {
                     horaFim = horaInicio;
                     minutoFim = minutoInicio;
                 } else {
@@ -173,7 +189,7 @@ public class DisponibilidadeService {
                     minutoFim = rec.horarios.get(i + 1).split(":")[1];
                 }
 
-                    dis.setHoraInicio(Integer.parseInt(horaInicio));
+                dis.setHoraInicio(Integer.parseInt(horaInicio));
                 dis.setHoraFim(Integer.parseInt(horaFim));
                 dis.setMinutoInicio(Integer.parseInt(minutoInicio));
                 dis.setMinutoFim(Integer.parseInt(minutoFim));
@@ -198,5 +214,22 @@ public class DisponibilidadeService {
                 .forEach(dis -> dis.getMedico().setFoto(null));
 
         return all;
+    }
+
+    public List<Disponibilidade> getMedicoWeek(String medicoId, int week) {
+        List<String> dias = new ArrayList<>();
+
+        java.sql.Date first = Date.valueOf(LocalDate.now().plusWeeks(week));
+
+        for (int i = 0; i < 7; i++) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            String day = format.format(first);
+
+            dias.add(day);
+            first = Date.valueOf(first.toLocalDate().plusDays(1));
+        }
+
+        return getByDayList(medicoId, dias);
+
     }
 }

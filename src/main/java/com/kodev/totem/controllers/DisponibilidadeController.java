@@ -49,6 +49,13 @@ public class DisponibilidadeController {
         return ResponseEntity.ok(byDayList);
     }
 
+    @PostMapping("/week/{id}")
+    public ResponseEntity<List<Disponibilidade>> getMedicoWeek(@PathVariable String id, @RequestParam int week) {
+
+        List<Disponibilidade> rWeek = disponibilidadeService.getMedicoWeek(id, week);
+        return ResponseEntity.ok(rWeek);
+    }
+
 
     @NoArgsConstructor
     public static class ReceiveDisponibilidade {

@@ -130,6 +130,7 @@ public class AtendimentoController {
         atendimento.setPaciente(paciente.get());
         atendimento.setDataAtendimento(formataHora(dataHora));
         atendimento.setChegou(false);
+        atendimento.setAtivo(true);
 
         Atendimento returnAtendimento = null;
 
@@ -160,7 +161,7 @@ public class AtendimentoController {
 
 
         if(pacientes.size() > 1) {
-            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Não foi possível encontrar apenas um registro do paciente")).build();
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Pacientes Duplicados")).build();
         }
 
         Optional<Paciente> paciente = pacienteRepository.findPacienteByNomeCompletoIgnoreCaseAndDataNascimentoAndAtivoIsTrue(nomePaciente, dataSql);
@@ -174,6 +175,10 @@ public class AtendimentoController {
             atendimento.setChegou(false);
 
             Atendimento atendimento1 = atendimentoService.criaAtendimento(atendimento);
+
+            if(atendimento1 == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "ocupado")).build();
+            }
 
             Usuario user = usuarioRepository.findUsuarioByMedico_MedicoId(medico.get().getMedicoId());
 
@@ -253,11 +258,11 @@ public class AtendimentoController {
         return ResponseEntity.ok(todayAtendimentos);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        atendimentoService.delete(id);
-        return ResponseEntity.ok("Deleted");
-    }
+    //@DeleteMapping("/{id}")
+    //public ResponseEntity<String> delete(@PathVariable Long id) {
+    //    atendimentoService.delete(id);
+    //    return ResponseEntity.ok("Deleted");
+    //}
 
 
     @PutMapping("/desmarcar")

@@ -57,6 +57,9 @@ public class AtendimentoService {
         List<Atendimento> all = atendimentoRepository.getAtendimentosByMedico_MedicoId_OnDate(atendimento.getMedico().getMedicoId(), atendimento.getDataAtendimento());
 
         for (Atendimento at : all) {
+
+            if(!at.isAtivo()) continue;
+
             boolean eqHour = at.getDataAtendimento().getHour() == atendimento.getDataAtendimento().getHour();
             boolean eqMin = at.getDataAtendimento().getMinute() == atendimento.getDataAtendimento().getMinute();
 
@@ -71,10 +74,10 @@ public class AtendimentoService {
         int hour = atendimento.getDataAtendimento().getHour();
         int minute = atendimento.getDataAtendimento().getMinute();
 
-        boolean free = disponibilidadeService.checkIfTimeOccupied(hour, minute, Date.valueOf(atendimento.getDataAtendimento().toLocalDate()), atendimento.getMedico().getMedicoId());
+        boolean timeOccupied = disponibilidadeService.checkIfTimeOccupied(hour, minute, Date.valueOf(atendimento.getDataAtendimento().toLocalDate()), atendimento.getMedico().getMedicoId());
         boolean occupied = checkIfOccupied(atendimento);
 
-        if(!free) return null;
+        if(timeOccupied) return null;
         if(occupied) return null;
 
         String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
@@ -118,8 +121,7 @@ public class AtendimentoService {
 
         Optional<Atendimento> byId = atendimentoRepository.findById(idAtendimento);
         byId.ifPresent((atendimento -> {
-            atendimento.setAtivo(false);
-            atendimentoRepository.save(atendimento);
+            atendimentoRepository.delete(byId.get());
         }));
     }
 
@@ -132,9 +134,9 @@ public class AtendimentoService {
 
         parse = new java.sql.Date(dateTimeFormatter.parse(dataAtendimento).getTime());
         Atendimento atendimento = atendimentoRepository.findByPacienteAndDataAtendimento(paciente, parse);
-        //atendimentoRepository.deleteById(atendimento.getAtendimentoId());
-        atendimento.setAtivo(false);
-        atendimentoRepository.save(atendimento);
+        atendimentoRepository.deleteById(atendimento.getAtendimentoId());
+        //atendimento.setAtivo(false);
+        //atendimentoRepository.save(atendimento);
     }
 
     @Transient
@@ -205,7 +207,13 @@ public class AtendimentoService {
     }
 
     public List<Atendimento> getAtendimentosAndForth() {
-        return atendimentoRepository.findAllAtendimentosFromTodayAndOnwards();
+
+
+        List<Atendimento> all = atendimentoRepository.findAllAtendimentosFromTodayAndOnwards();
+
+        all.stream().filter((a) -> a.isAtivo());
+
+        return all;
     }
 
     public void delete(Long id) {
