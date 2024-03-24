@@ -81,7 +81,7 @@ public class AtendimentoService {
         if(occupied) return null;
 
         String nomePacienteToken = atendimento.getPaciente().getNomeCompleto();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM às HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM HH:mm");
         String horarioToken = atendimento.getDataAtendimento().format(formatter);
 
         if(!atendimento.getPaciente().isAtivo()) {

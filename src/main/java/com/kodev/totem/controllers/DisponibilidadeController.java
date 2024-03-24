@@ -44,6 +44,8 @@ public class DisponibilidadeController {
     @PostMapping("/getList/{id}")
     public ResponseEntity<List<Disponibilidade>> getList(@PathVariable String id, @RequestBody List<String> days) throws ParseException {
 
+        days.forEach((d) -> System.out.println(d));
+
         List<Disponibilidade> byDayList = disponibilidadeService.getByDayList(id, days);
 
         return ResponseEntity.ok(byDayList);
